@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Player with Notes</title>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: black;
+            text-align: center;
+        }
+        /* Search Section */
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        .search-container input, .note-input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #fff;
+            color: black;
+            width: 100%;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .search-container button, .export-button {
+            padding: 10px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        .search-container button:hover, .export-button:hover {
+            background-color: #cc0000;
+        }
+        
+        /* Video Section */
+        .video-player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+        }
+        
+        /* Notes Section */
+        .note-item {
+            background: #f1f1f1;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        .timestamp-button {
+            background: #ff0000;
+            border: none;
+            padding: 5px 10px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .timestamp-button:hover {
+            background: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Search Section -->
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search YouTube Videos...">
+        <button onclick="searchVideos()">Search</button>
+    </div>
+    
+    <!-- Video List -->
+    <div id="video-list"></div>
+    
+    <!-- Video Player Section -->
+    <div id="video-player" class="video-player" style="display:none;">
+<<<<<<< Tabnine <<<<<<<
+        <div id="video"></div>
+>>>>>>> Tabnine >>>>>>>// {"source":"chat"}
+        <input class="note-input" id="notes" placeholder="Take a short note...">
+        <button onclick="saveNote()">Save Note</button>
+        <button class="export-button" onclick="exportNotes()">Export Notes</button>
+        <div id="note-list"></div>
+    </div>
+    
+    <script>
+        let videoId = "";
+        let player;
+        
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '400',
+                width: '100%',
+                videoId: '',
+                playerVars: { 'autoplay': 0, 'controls': 1 },
+            });
+        }
+        
+        function searchVideos() {
+            const query = document.getElementById('search').value;
+            const API_KEY = 'AIzaSyBk7lUa_XS1QuYVuVm5i6UTHXo389OLNQU';
+            fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&type=video&maxResults=5&key=${API_KEY}`)
+                .then(response => response.json())
+                .then(data => {
+                    const videoList = document.getElementById('video-list');
+                    videoList.innerHTML = '';
+                    data.items.forEach(video => {
+                        const videoItem = document.createElement('div');
+                        videoItem.innerHTML = `<img src="${video.snippet.thumbnails.default.url}" alt="thumbnail"> <p>${video.snippet.title}</p>`;
+                        videoItem.onclick = () => playVideo(video.id.videoId);
+                        videoList.appendChild(videoItem);
+                    });
+                });
+        }
+        
+        function playVideo(id) {
+            videoId = id;
+            document.getElementById('video-list').style.display = 'none';
+            document.getElementById('video-player').style.display = 'block';
+            player.loadVideoById(videoId);
+        }
+        
+        function saveNote() {
+            const noteText = document.getElementById('notes').value;
+            const timestamp = Math.floor(player.getCurrentTime());
+            if (noteText.trim()) {
+                const noteItem = document.createElement('div');
+                noteItem.classList.add('note-item');
+                noteItem.innerHTML = `<button class='timestamp-button' onclick='jumpToTime(${timestamp})'>Jump to ${formatTime(timestamp)}</button> ${noteText}`;
+                document.getElementById('note-list').appendChild(noteItem);
+                document.getElementById('notes').value = '';
+            }
+        }
+        
+        function jumpToTime(seconds) {
+            player.seekTo(seconds, true);
+            player.playVideo();
+        }
+        
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        function exportNotes() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let notesText = "YouTube Video Notes\n\n";
+            document.querySelectorAll('.note-item').forEach((note, index) => {
+                const timestamp = note.querySelector('button').innerText.replace('Jump to ', '');
+                const noteText = note.innerText.replace(/Jump to \d+:\d+/g, '');
+                const link = `https://www.youtube.com/watch?v=${videoId}&t=${parseInt(timestamp.split(':')[0]) * 60 + parseInt(timestamp.split(':')[1])}s`;
+                notesText += `${index + 1}. [${timestamp}] ${noteText} - ${link}\n`;
+            });
+            doc.text(notesText, 10, 10);
+            doc.save("video_notes.pdf");
+        }
+    </script>
+</body>
+</html>
