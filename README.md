@@ -37,7 +37,7 @@ A feature-rich web application built with PHP and MySQL, offering user managemen
 
 1. Clone this repository to your XAMPP's htdocs folder:
    ```
-   git clone <repository-url> 123
+   git clone <repository-url> Edutools
    ```
 
 2. Start XAMPP and ensure Apache and MySQL services are running
@@ -48,7 +48,7 @@ A feature-rich web application built with PHP and MySQL, offering user managemen
 
 5. Access the application through your web browser:
    ```
-   http://localhost/123
+   http://localhost/Edutools
    ```
 
 ## Project Structure
