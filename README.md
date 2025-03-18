@@ -81,6 +81,7 @@ A feature-rich web application built with PHP and MySQL, offering user managemen
 ├── index.php           # Main entry point
 ├── notes.php           # Notes management
 └── styles.css          # Main stylesheet
+```
 
 ## Technologies Used
 
